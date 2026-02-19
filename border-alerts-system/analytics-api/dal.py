@@ -61,4 +61,8 @@ class MongQury:
                 }
             }
         ]
-        return mongo.colletion.aggregate(qury).to_list()
+        
+        return mongo.colletion.aggregate(qury).to_list()    
+    
+    def hot_zones(self):
+        qury = []
