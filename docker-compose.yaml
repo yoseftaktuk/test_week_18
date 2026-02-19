@@ -1,0 +1,75 @@
+services:
+
+
+  mongo:
+    image: mongo:latest
+    ports:
+      - 27017:27017
+    volumes:
+      - mongodb_data:/data/db  
+    environment: 
+      MONGO_INITDB_ROOT_USERNAME: my_user
+      MONGO_INITDB_ROOT_PASSWORD: my_password
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping').ok"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 30s   
+
+
+  redis:
+    image: redis:latest
+    ports:
+      - 6379:6379
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli ping | grep PONG"]
+      interval: 1s
+      timeout: 3s
+      retries: 5  
+
+  api:
+    build: border-alerts-system/analytics-api
+    ports:
+      - 8000:8000
+    environment:
+      USER: my_user
+      PASSWORD: my_password   
+      PORT: 27017
+      HOST: mongo
+      REDIS_HOST: redis
+    depends_on:
+      mongo:
+        condition: service_healthy  
+      redis:
+        condition: service_healthy  
+
+  produser:
+    build: border-alerts-system/producer
+    depends_on:
+       redis:
+          condition: service_healthy
+    environment:
+      USER: my_user
+      PASSWORD: my_password   
+      PORT: 27017
+      HOST: mongo
+      REDIS_HOST: redis      
+
+  consumer:
+    build: border-alerts-system/consumer 
+    environment:
+      USER: my_user
+      PASSWORD: my_password   
+      PORT: 27017
+      HOST: mongo
+      REDIS_HOST: redis      
+    depends_on:
+      mongo:
+        condition: service_healthy  
+      redis:
+        condition: service_healthy 
+
+
+volumes:
+  mongodb_data:  

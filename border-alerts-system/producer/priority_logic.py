@@ -23,7 +23,7 @@ class ProcessingService:
     def classification(self, data: list):
         for item in data:
             item['priority'] = 'NORMAL' 
-            if self.check_for_urgent(item: dict) or self.check_for_urgent_integrated(item):
+            if self.check_for_urgent(item) or self.check_for_urgent_integrated(item):
                 item['priority'] = 'URGENT'
 
     def check_for_urgent(self, item: dict):
