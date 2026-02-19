@@ -8,6 +8,7 @@ port = os.getenv('PORT')
 user = os.getenv('USER')
 password = os.getenv('PASSWORD')
 uri = f"mongodb://{user}:{password}@{host}:{port}"
+print(uri)
 
 class MongoDbService:
     def __init__(self):
